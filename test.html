@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Assignment-06</title>
+    <title>Hard Rock Solution - Song Lyric App</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Custom css -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="search-bar col-md-6 mx-auto">
+        <h1 class="text-center">Lyrics Search</h1>
+        <div class="search-box my-5">
+            <input type="text" id="search"    class="form-control" placeholder="Enter your artist song name">
+            <!--Songs Search button  -->
+            <button id="searchButton"   class="btn btn-success search-btn">Search</button>
+        </div>
+    </div>
+      <!-- === Simple results === -->
+      <div class="d-flex justify-content-center">
+            <div id="result" class="container">
+                <!-- get lyrics button -->
+                <div>
+                   <p id="injected"></p>
+                </div>
+                 <div id="track-details" class="content" >
+                </div>                         
+            </div>
+        </div>
+<script>
+
+const search = document.getElementById("search");
+const result = document.getElementById("result");
+const searchBtn = document.getElementById("searchButton");
+searchBtn.addEventListener("click", function(){
+        const searchTerm = search.value;
+        searchSongs(searchTerm);
+  })
+
+function searchSongs(term){
+        fetch(`https://api.lyrics.ovh/suggest/${term}`)
+       .then(res=> res.json())
+    .then(result => {
+        
+        console.log(result.data.slice(0, 10))
+        const html= result.data.slice(0, 10).map(songName => {
+            const artist= songName.artist.name;
+            const title= songName.title;
+
+            return `<p class="paragraph" > Song Title: ${songName.title} 
+            <button id="getDetail" class="btn btn-success btn" 
+            onclick="getLyricsDetail('${artist}', '${title}')"> Details </button></p>`
+            }).join();
+        // console.log(html.slice(0, 9));
+        document.querySelector('#injected').insertAdjacentHTML('afterbegin',html);})
+     
+    }
+    
+    function getLyricsDetail(artist, title){
+        fetch(`https://api.lyrics.ovh/v1/${artist}/${title}`)
+        .then(res =>res.json())
+        .then (data=>{
+            console.log(data)
+            const detailLyrics= document.getElementById("track-details");
+            detailLyrics.innerHTML= `<p>${data.lyrics}</p>`
+            } )
+    }
+
+</script>
+</body>
+</html>
